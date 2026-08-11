@@ -91,15 +91,37 @@ constructor
 		}
 	}
 	
-	
 	set_palette();
+	
+	/// @function			get_index
+    /// @description	Calculate index of the selected palette item.
+	/// @return			Return index of the selected palette item.
+	
+    static get_index = function() 
+    {
+		//for (var _index = 0; _index < column_qty; _index++)
+		//{
+		//	if point_in_rectangle(mouse_x, mouse_y, palette_data[_index].x, palette_data[_index].y, palette_data[_index].x + sprite_width, palette_data[_index].y + sprite_height);
+		//}
+	}
 	
 	/// @function			step
     /// @description	Execute step code for grid constructor instance.
 	
     static step = function() 
     {
-		
+		for (var _index = 0; _index < column_qty; _index++)
+		{
+			var _x1 = palette_data[_index].x;
+			var _y1 = palette_data[_index].y;
+			var _x2 = palette_data[_index].x + sprite_width;
+			var _y2 = palette_data[_index].y + sprite_height;
+			
+			if point_in_rectangle(mouse_x, mouse_y, _x1, _y1, _x2, _y2)
+			{
+				show_debug_message(_index);
+			}
+		}
 	}
 				
     static draw = function() 
