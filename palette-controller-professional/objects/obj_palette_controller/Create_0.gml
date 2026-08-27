@@ -6,14 +6,14 @@ global.palette_list = [];							// Stores array of grid structs
 
 /// @function palette()
 /// @constructor
-/// @description																					Generates a 2D grid based on parameters.
-/// @since																							    v0.1.0.	
-/// @param {Real}							    [_sprite_enabled]					Sprite to use for enabled state.
-/// @param {Real}							    [_sprite_disabled]					Sprite to use for disabled state.
-/// @param {Real}							    [_sprite_inset]						Sprite to use for inset state.
-/// @param {Real}							    [_x_offset]								The horizontal starting position (origin) top-left.
-/// @param {Real}							    [_y_offset]								The vertical starting position (origin) top-left.
-/// @returns {Struct}							                                                A new grid struct.					
+/// @description																Generates a 2D grid based on parameters.
+/// @since																		v0.1.0.	
+/// @param {Real}							    [_sprite_enabled]				Sprite to use for enabled state.
+/// @param {Real}							    [_sprite_disabled]				Sprite to use for disabled state.
+/// @param {Real}							    [_sprite_inset]					Sprite to use for inset state.
+/// @param {Real}							    [_x_offset]						The horizontal starting position (origin) top-left.
+/// @param {Real}							    [_y_offset]						The vertical starting position (origin) top-left.
+/// @returns {Struct}							                                A new grid struct.					
 
 function palette
 (
@@ -33,8 +33,8 @@ constructor
 	
 	palette_data = [];
 	
-	x_offset				= _x_offset;
-    y_offset				= _y_offset;
+	x_offset		= _x_offset;
+    y_offset		= _y_offset;
 	
 	x_gap = 8;
 	y_gap = 8;
@@ -65,8 +65,8 @@ constructor
 	sprite_width = sprite_get_width(_sprite_enabled) * scale_enabled;
 	sprite_height = sprite_get_height(_sprite_enabled) * scale_enabled;
 	
-    /// @function											set_grid
-    /// @description									Updates grid or initialises first grid. 				
+    /// @function			set_palette
+    /// @description		Updates grid or initialises first grid. 				
 
 	static set_palette = function()
 	{
@@ -93,22 +93,13 @@ constructor
 	
 	set_palette();
 	
-	/// @function			get_index
-    /// @description	Calculate index of the selected palette item.
-	/// @return			Return index of the selected palette item.
+	/// @function					get_index
+    /// @description				Calculate index of the selected palette item.
+	/// @param		{Real}	[_x]	X value to check against. (Default is mouse but this allows for other inputs)
+	/// @param		{Real}	[_y]	Y value to check against. (Default is mouse but this allows for other inputs) 
+	/// @return		{Real}			Return index of the selected palette item. (returns -1 if nothing is selected)
 	
-    static get_index = function() 
-    {
-		//for (var _index = 0; _index < column_qty; _index++)
-		//{
-		//	if point_in_rectangle(mouse_x, mouse_y, palette_data[_index].x, palette_data[_index].y, palette_data[_index].x + sprite_width, palette_data[_index].y + sprite_height);
-		//}
-	}
-	
-	/// @function			step
-    /// @description	Execute step code for grid constructor instance.
-	
-    static step = function() 
+    static get_index = function(_x = mouse_x, _y = mouse_y) 
     {
 		for (var _index = 0; _index < column_qty; _index++)
 		{
@@ -117,11 +108,21 @@ constructor
 			var _x2 = palette_data[_index].x + sprite_width;
 			var _y2 = palette_data[_index].y + sprite_height;
 			
-			if point_in_rectangle(mouse_x, mouse_y, _x1, _y1, _x2, _y2)
+			if point_in_rectangle(_x, _y, _x1, _y1, _x2, _y2)
 			{
-				show_debug_message(_index);
-			}
+				return _index;
+			} 
 		}
+		
+		return -1;
+	}
+	
+	/// @function		step
+    /// @description	Execute step code for grid constructor instance.
+	
+    static step = function() 
+    {
+		show_debug_message(get_index());
 	}
 				
     static draw = function() 
