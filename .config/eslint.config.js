@@ -38,7 +38,7 @@ export default [
       'package-lock.json',
       'branch-protection-rules/',
       ...gitignorePatterns,
-      '**/grid-utility-professional/**'
+      '**/palette-controller-professional/**'
     ],
   },
 
