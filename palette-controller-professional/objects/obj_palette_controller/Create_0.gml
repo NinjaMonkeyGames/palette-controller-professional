@@ -5,15 +5,30 @@
 global.palette_list = [];							// Stores array of grid structs
 
 /// @function palette()
-/// @constructor
-/// @description																Generates a 2D grid based on parameters.
-/// @since																		v0.1.0.	
-/// @param {Real}							    [_sprite_enabled]				Sprite to use for enabled state.
-/// @param {Real}							    [_sprite_disabled]				Sprite to use for disabled state.
-/// @param {Real}							    [_sprite_inset]					Sprite to use for inset state.
-/// @param {Real}							    [_x_offset]						The horizontal starting position (origin) top-left.
-/// @param {Real}							    [_y_offset]						The vertical starting position (origin) top-left.
-/// @returns {Struct}							                                A new grid struct.					
+/// @description Generates a 2D palette grid using the specified sprites, transforms, and layout settings.
+/// @since v0.1.0
+///
+/// @param {Real} [_sprite_enabled=spr_enabled]		Sprite used for the enabled state.
+/// @param {Real} [_sprite_disabled=spr_disabled]	Sprite used for the disabled state.
+/// @param {Real} [_sprite_inset=spr_inset]			Sprite used for the inset state.
+///
+/// @param {Real} [_scale_enabled=0.5]				Display scale for the enabled sprite.
+/// @param {Real} [_scale_disabled=0.5]				Display scale for the disabled sprite.
+/// @param {Real} [_scale_inset=0.5]				Display scale for the inset sprite.
+///
+/// @param {Real} [_alpha_enabled=1]				Alpha value for the enabled sprite.
+/// @param {Real} [_alpha_disabled=1]				Alpha value for the disabled sprite.
+/// @param {Real} [_alpha_inset=1]					Alpha value for the inset sprite.
+///
+/// @param {Real} [_angle_enabled=0]				Rotation angle for the enabled sprite.
+/// @param {Real} [_angle_disabled=0]				Rotation angle for the disabled sprite.
+/// @param {Real} [_angle_inset=0]					Rotation angle for the inset sprite.
+///
+/// @param {Real} [_x_offset=64]					Horizontal starting position, measured from the top-left origin.
+/// @param {Real} [_y_offset=32]					Vertical starting position, measured from the top-left origin.
+/// @param {Real} [_line_break_qty=10]				Number of palette entries before starting a new line.
+///
+/// @returns {Struct} A new palette struct.			
 
 function palette
 (
@@ -66,7 +81,7 @@ constructor
 	sprite_height = sprite_get_height(_sprite_enabled) * scale_enabled;
 	
     /// @function			set_palette
-    /// @description		Updates grid or initialises first grid. 				
+    /// @description		Updates or initialises first palette. 				
 
 	static set_palette = function()
 	{
