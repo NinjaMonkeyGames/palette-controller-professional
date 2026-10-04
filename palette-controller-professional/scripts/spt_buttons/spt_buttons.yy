@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"spt_buttons",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"spt_buttons",
+  "parent":{
+    "name":"palette-controller-professional",
+    "path":"palette-controller-professional.yyp",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

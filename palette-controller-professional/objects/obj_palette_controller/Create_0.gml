@@ -1,5 +1,14 @@
 // CREATES A CONSTRUCTOR CLASS  FOR GENERATING A 2D GRID
 
+// States
+
+enum STATE 
+{
+    DISABLED,
+	INSET,
+	ENABLED
+}
+
 /// @description Generate 2D grid
 
 global.palette_list = [];							// Stores array of grid structs
@@ -36,15 +45,23 @@ _sprite_enabled = spr_enabled, _sprite_disabled = spr_disabled, _sprite_inset = 
 _scale_enabled = 0.5, _scale_disabled = 0.5, _scale_inset = 0.5,
 _alpha_enabled = 1, _alpha_disabled = 1, _alpha_inset = 1,
 _angle_enabled = 0, _angle_disabled = 0, _angle_inset = 0,
-_x_offset = 64, _y_offset = 32, 
+_x_offset = 128, _y_offset = 128, 
 _line_break_qty = 10, 
 
 )  
 constructor
 {
 	/// @description Calculation variables
-		
+	
+	palette_id = (function() 
+	{
+	    static _instances = [];
+	    array_push(_instances, self);
+	    return array_length(_instances) - 1; // Gives each instance a unique auto-incrementing ID
+	})();
+	
 	cache_cursor = window_get_cursor();
+	last_index = -1;
 	
 	palette_data = [];
 	
@@ -58,18 +75,18 @@ constructor
 	
 	sprite_enabled	= _sprite_enabled;
 	sprite_disabled	= _sprite_disabled;
-	sprite_inset		= _sprite_inset;
+	sprite_inset	= _sprite_inset;
 	
 	scale_enabled	= _scale_enabled;
 	scale_disabled	= _scale_disabled;
-	scale_inset			= _scale_inset;
+	scale_inset		= _scale_inset;
 	
 	alpha_enabled	= _alpha_enabled;
-	alpha_disabled	=_alpha_disabled;
+	alpha_disabled	= _alpha_disabled;
 	alpha_inset		= _alpha_inset;
 	
 	angle_enabled	= _alpha_enabled;
-	angle_disabled	=_alpha_disabled;
+	angle_disabled	= _alpha_disabled;
 	angle_inset		= _alpha_inset;
 	
 	line_break_qty	= _line_break_qty;
@@ -92,10 +109,11 @@ constructor
 			
 			palette_data[_index] = 
 			{
+				state  : STATE.ENABLED,
 				sprite : sprite_inset,
 					
-			    x : x_offset + (_column * (sprite_width + x_gap)),
-			    y : y_offset + (_row * (sprite_height + y_gap)),
+			    x: x_offset + (_column * (sprite_width + x_gap)),
+			    y: y_offset + (_row * (sprite_height + y_gap)),
 					
 				x_scale : scale_enabled,
 				y_scale : scale_enabled,
@@ -126,10 +144,24 @@ constructor
 			if point_in_rectangle(_x, _y, _x1, _y1, _x2, _y2)
 			{
 				return _index;
-			} 
+			}
 		}
 		
 		return -1;
+	}
+	
+	set_palette();
+	
+	/// @function					unset
+    /// @description				Reset all buttons except disabled.
+	/// @return		{Real}			Return index of the selected palette item. (returns -1 if nothing is selected)
+	
+    static unset = function() 
+    {
+		for (var _index = 0; _index < column_qty; _index++)
+		{
+			palette_data[_index].sprite = sprite_enabled;
+		}
 	}
 	
 	/// @function		step
@@ -137,8 +169,33 @@ constructor
 	
     static step = function() 
     {
-		show_debug_message(get_index());
+		if get_index() != -1 then window_set_cursor(cr_handpoint) else window_set_cursor(cache_cursor);
+		
+		if get_index() != -1 
+		{
+			window_set_cursor(cr_handpoint);
+			
+			if last_index != get_index()
+			{
+				audio_play_sound(snd_disabled, 0, false);
+				
+				
+			}
+			
+			if mouse_check_button(mb_left)
+			{
+				spt_buttons(palette_id, get_index());
+			}
+		}
+			else
+		{
+			window_set_cursor(cr_arrow);
+		}
+	
+		last_index = get_index();
 	}
+	
+	
 				
     static draw = function() 
     {
