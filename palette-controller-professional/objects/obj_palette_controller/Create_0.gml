@@ -242,6 +242,27 @@ constructor
         return _hovered_index;
     }
         
+	static step = function()
+	{
+		var _mx = mouse_x;
+        var _my = mouse_y;
+        
+        // Update hover and cursor states
+        var _hovered_index = handle_hover(_mx, _my);
+        
+        // Check for click / press interactions
+        var _is_pressing = mouse_check_button(mb_left);
+        var _pressed_index = get_index_at(_mx, _my);
+        
+        if (mouse_check_button_pressed(mb_left))
+        {
+            if (_pressed_index != -1)
+            {
+                select_index(_pressed_index);
+            }
+        }
+	}
+		
     /**
      * @function draw()
      * @constructor
