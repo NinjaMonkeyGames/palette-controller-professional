@@ -13,7 +13,7 @@ global.palette_list = []; // Stores array of grid structs
 /**
  * @function palette()
  * @constructor
- * @description     Generates a 2D palette grid with sound effects and cursor swapping.
+ * @description      Generates a 2D palette grid with sound effects and cursor swapping.
  * @since v0.1.0
  * @param   {Asset.GMSprite}    [_sprite_enabled]           Sprite asset used when enabled.
  * @param   {Asset.GMSprite}    [_sprite_disabled]          Sprite asset used when disabled.
@@ -32,6 +32,8 @@ global.palette_list = []; // Stores array of grid structs
  * @param   {Real}              [_line_break_qty]           Number of items per row before wrapping.
  * @param   {Asset.GMSound}     [_sound_click=snd_click]    Sound effect played on click.
  * @param   {Asset.GMSound}     [_sound_hover=snd_hover]    Sound effect played on hover.
+ * @param   {Asset.GMSound}     [_sound_inset=snd_inset]    Sound effect played when toggled to inset/active.
+ * @param   {Asset.GMSound}     [_sound_disabled=snd_disabled] Sound effect played when clicking a disabled item.
  * @returns {Struct}                                        A new palette struct.
  */
 
@@ -43,7 +45,8 @@ _alpha_enabled = 1, _alpha_disabled = 1, _alpha_inset = 1,
 _angle_enabled = 0, _angle_disabled = 0, _angle_inset = 0,
 _x_offset = 128, _y_offset = 128, 
 _line_break_qty = 10,
-_sound_click = snd_click, _sound_hover = snd_hover
+_sound_click = snd_click, _sound_hover = snd_hover,
+_sound_inset = snd_inset, _sound_disabled = snd_disabled
 )  
 constructor
 {
@@ -52,9 +55,9 @@ constructor
     /**
      * @function palette_id()
      * @constructor
-     * @description     Generates a unique palette ID.
+     * @description      Generates a unique palette ID.
      * @since v0.1.0
-     * @returns {Real}                               Palette ID.
+     * @returns {Real}                           Palette ID.
      */
     
     palette_id = (function() 
@@ -95,6 +98,8 @@ constructor
     
     sound_click     = _sound_click;
     sound_hover     = _sound_hover;
+    sound_inset     = _sound_inset;
+    sound_disabled  = _sound_disabled;
 
     column_qty = sprite_get_number(sprite_enabled);
     row_qty = round(column_qty / line_break_qty);
@@ -105,7 +110,7 @@ constructor
     /**
      * @function set_palette()
      * @constructor
-     * @description     Generates default palette.
+     * @description      Generates default palette.
      * @since v0.1.0
      */
     
@@ -131,7 +136,7 @@ constructor
     /**
      * @function get_index_at()
      * @constructor
-     * @description     Gets index for button at arbitrary coordinates (mouse, virtual cursor, etc.).
+     * @description      Gets index for button at arbitrary coordinates (mouse, virtual cursor, etc.).
      * @since v0.1.0
      * @param           {Real}   [_x]    X coordinate to check button selection against.
      * @param           {Real}   [_y]    Y coordinate to check button selection against.
@@ -158,7 +163,7 @@ constructor
     /**
      * @function set_state()
      * @constructor
-     * @description     Sets state of a palette item (button).
+     * @description      Sets state of a palette item (button).
      * @since v0.1.0
      * @param           {Real}   [_id]       ID of the palette item (button) to set the state of.
      * @param           {Real}   [_state]    The state to set.
@@ -175,7 +180,7 @@ constructor
     /**
      * @function select_index()
      * @constructor
-     * @description     Device-agnostic core logic: selects or toggles a palette item by index.
+     * @description      Device-agnostic core logic: selects or toggles a palette item by index.
      * @since v0.1.0
      * @param           {Real}   [_index]    Index of the palette button to select.
      */
@@ -185,30 +190,47 @@ constructor
         if (_index < 0 || _index >= column_qty) return;
         var _item = palette_data[_index];
         
-        if (_item.state == PALETTE_STATE.DISABLED) return;
+        if (_item.state == PALETTE_STATE.DISABLED)
+        {
+            if (audio_exists(sound_disabled))
+            {
+                audio_play_sound(sound_disabled, 0, false);
+            }
+            return;
+        }
         
         if (_item.sticky)
         {
             if (_item.state == PALETTE_STATE.ACTIVE)
             {
                 set_state(_index, PALETTE_STATE.NORMAL);
+                if (audio_exists(sound_click))
+                {
+                    audio_play_sound(sound_click, 0, false);
+                }
             }
             else
             {
                 set_state(_index, PALETTE_STATE.ACTIVE);
+                if (audio_exists(sound_inset))
+                {
+                    audio_play_sound(sound_inset, 0, false);
+                }
             }
         }
-        
-        if (audio_exists(sound_click))
+        else
         {
-            audio_play_sound(sound_click, 0, false);
+            if (audio_exists(sound_click))
+            {
+                audio_play_sound(sound_click, 0, false);
+            }
         }
     }
 
     /**
      * @function handle_hover()
      * @constructor
-     * @description     Manages hover states and cursor swapping based on input coordinates.
+     * @description      Manages hover states and cursor swapping based on input coordinates.
      * @since v0.1.0
      * @param           {Real}   [_x]    X coordinate of pointer/cursor.
      * @param           {Real}   [_y]    Y coordinate of pointer/cursor.
@@ -242,15 +264,13 @@ constructor
         return _hovered_index;
     }
         
-	static step = function()
-	{
-		var _mx = mouse_x;
+    static step = function()
+    {
+        var _mx = mouse_x;
         var _my = mouse_y;
         
-        // Update hover and cursor states
         var _hovered_index = handle_hover(_mx, _my);
         
-        // Check for click / press interactions
         var _is_pressing = mouse_check_button(mb_left);
         var _pressed_index = get_index_at(_mx, _my);
         
@@ -261,70 +281,78 @@ constructor
                 select_index(_pressed_index);
             }
         }
-	}
-		
+        
+        draw(_hovered_index, _is_pressing, _pressed_index);
+    }
+        
     /**
      * @function draw()
      * @constructor
-     * @description                         Draw palette based on palette data and external interaction state.
+     * @description										Draw palette based on palette data and external interaction state.
      * @since v0.1.0
      * @param           {Real}   [_hovered_index=-1]    Index currently hovered over.
      * @param           {Bool}   [_is_pressing=false]   Whether the input device is actively held down.
-     * @param           {Real}   [_pressed_idx=-1]      Index currently being pressed down.
+     * @param           {Real}   [_pressed_index=-1]      Index currently being pressed down.
      */
     
-    static draw = function(_hovered_index = -1, _is_pressing = false, _pressed_idx = -1) 
+    static draw = function(_hovered_index = -1, _is_pressing = false, _pressed_index = -1) 
     {
         for (var _index = 0; _index < column_qty; _index++)
         {
             var _item = palette_data[_index];
             var _is_hovered = (_index == _hovered_index);
-            var _is_last_clicked = (_index == _pressed_idx);
-            var _sprite, _scale, _alpha, _angle;
+            var _is_last_clicked = (_index == _pressed_index);
+            //var _sprite, _scale, _alpha, _angle;
             
             switch (_item.state)
             {
                 case PALETTE_STATE.DISABLED:
+				
                     _sprite = sprite_disabled;
                     _scale  = scale_disabled;
                     _alpha  = alpha_disabled;
                     _angle  = angle_disabled;
+					
                 break;
                 
                 case PALETTE_STATE.ACTIVE:
+				
                     if (_is_last_clicked && _is_pressing) 
                     {
                         _sprite = sprite_enabled;
                         _scale  = scale_enabled;
                     } 
-                    else 
+						else 
                     {
                         _sprite = sprite_inset;
                         _scale  = scale_inset;
                     }
                     _alpha = alpha_inset;
                     _angle = angle_inset;
+					
                 break;
                 
                 case PALETTE_STATE.NORMAL:
+				
                 default:
                     if (_is_last_clicked && _is_pressing) 
                     {
                         _sprite = sprite_inset;
                         _scale  = scale_inset;
                     } 
-                    else if (_is_hovered) 
+						else if (_is_hovered) 
                     {
                         _sprite = sprite_enabled;
                         _scale  = scale_enabled - 0.1;
                     } 
-                    else 
+						else 
                     {
                         _sprite = sprite_enabled;
                         _scale  = scale_enabled;
                     }
                     _alpha = alpha_enabled;
                     _angle = angle_enabled;
+					
                 break;
             }
             

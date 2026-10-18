@@ -26,6 +26,7 @@
     {"id":{"name":"snd_click","path":"sounds/snd_click/snd_click.yy",},},
     {"id":{"name":"snd_disabled","path":"sounds/snd_disabled/snd_disabled.yy",},},
     {"id":{"name":"snd_hover","path":"sounds/snd_hover/snd_hover.yy",},},
+    {"id":{"name":"snd_inset","path":"sounds/snd_inset/snd_inset.yy",},},
     {"id":{"name":"spr_disabled","path":"sprites/spr_disabled/spr_disabled.yy",},},
     {"id":{"name":"spr_enabled","path":"sprites/spr_enabled/spr_enabled.yy",},},
     {"id":{"name":"spr_inset","path":"sprites/spr_inset/spr_inset.yy",},},
